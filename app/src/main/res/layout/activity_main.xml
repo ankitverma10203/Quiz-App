@@ -13,8 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Quiz App!"
+        android:textStyle="bold"
         android:layout_margin="20dp"
-        android:textSize="20sp" />
+        android:textSize="30sp" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -25,13 +26,13 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:padding="20dp">
             <TextView
                 android:id="@+id/welcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Welcome!"
-                android:layout_margin="20dp"
+                android:layout_marginBottom="20dp"
                 android:textSize="20sp" />
 
             <TextView
@@ -42,18 +43,19 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/name_input_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:hint="Enter your Name"/>
+                    android:hint="Name"/>
             </com.google.android.material.textfield.TextInputLayout>
             <Button
                 android:id="@+id/btn_submit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Submit" />
+                android:text="Submit"
+                android:layout_marginTop="20dp"/>
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
