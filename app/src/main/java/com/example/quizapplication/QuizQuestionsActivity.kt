@@ -3,44 +3,59 @@ package com.example.quizapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 
-class QuizQuestionsActivity : AppCompatActivity() {
+class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
 
-    var questionList: ArrayList<Questions>? = null
-    var question: TextView? = null
-    var image: ImageView? = null
-    var progressBar: ProgressBar? = null
-    var progressText: TextView? = null
-    var option1: TextView? = null
-    var option2: TextView? = null
-    var option3: TextView? = null
-    var option4: TextView? = null
-    var optionList: ArrayList<TextView>? = null
-    var currentQuestion = 1
-    var submitBtn: Button? = null
-    var score: Int = 0
+    private var questionList: ArrayList<Questions>? = null
+    private var question: TextView? = null
+    private var image: ImageView? = null
+    private var progressBar: ProgressBar? = null
+    private var progressText: TextView? = null
+    private var option1: TextView? = null
+    private var option2: TextView? = null
+    private var option3: TextView? = null
+    private var option4: TextView? = null
+    private var optionList: Map<Int?, TextView?>? = null
+    private var currentQuestionNumber = 1
+    private var submitBtn: Button? = null
+    private var score: Int = 0
+    private var selectedOption: View? = null
+    private var answered: Boolean = false
+    private var currentQuestion: Questions? = null
+    private var correctOption: View? = null
+    private var userName: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_questions)
+
+        userName = intent.getStringExtra(Constants.USER_NAME_KW)
 
         question = findViewById(R.id.question)
         image = findViewById(R.id.image)
         progressBar = findViewById(R.id.progress_bar)
         progressText = findViewById(R.id.progress_value)
         option1 = findViewById(R.id.option1)
+        option1?.setOnClickListener(this)
         option2 = findViewById(R.id.option2)
+        option2?.setOnClickListener(this)
         option3 = findViewById(R.id.option3)
+        option3?.setOnClickListener(this)
         option4 = findViewById(R.id.option4)
+        option4?.setOnClickListener(this)
 
-        optionList = ArrayList()
-        optionList?.add(option1 as TextView)
-        optionList?.add(option2 as TextView)
-        optionList?.add(option3 as TextView)
-        optionList?.add(option4 as TextView)
+        optionList = mapOf(
+            option1?.id to (option1 as TextView),
+            option2?.id to (option2 as TextView),
+            option3?.id to (option3 as TextView),
+            option4?.id to (option4 as TextView)
+        )
 
         submitBtn = findViewById(R.id.btn_submit)
 
@@ -50,45 +65,83 @@ class QuizQuestionsActivity : AppCompatActivity() {
         submitBtn?.setOnClickListener {
             submitOnClickHandler()
         }
-
     }
 
     private fun getQuestions() {
-
-        question?.text = questionList!![currentQuestion - 1].question
-        image?.setImageResource(questionList!![currentQuestion - 1].image)
+        resetOptionsStyle()
+        currentQuestion = questionList!![currentQuestionNumber - 1]
+        question?.text = currentQuestion?.question
+        currentQuestion?.image?.let { image?.setImageResource(it) }
 
         progressBar?.max = questionList!!.size
-        progressBar?.progress = currentQuestion
-        progressText?.text = "$currentQuestion/${questionList?.size}"
+        progressBar?.progress = currentQuestionNumber
+        progressText?.text = "$currentQuestionNumber/${questionList?.size}"
 
-        option1?.text = questionList!![currentQuestion - 1].option1
-        option2?.text = questionList!![currentQuestion - 1].option2
-        option3?.text = questionList!![currentQuestion - 1].option3
-        option4?.text = questionList!![currentQuestion - 1].option4
+        option1?.text = currentQuestion?.option1
+        option2?.text = currentQuestion?.option2
+        option3?.text = currentQuestion?.option3
+        option4?.text = currentQuestion?.option4
 
-        if (currentQuestion == questionList!!.size) {
+        if (currentQuestionNumber == questionList!!.size) {
             submitBtn?.text = "FINISH"
         }
+
+        correctOption = getCorrectOption()
+    }
+
+    private fun getCorrectOption(): TextView? {
+        for (option in optionList!!.values) {
+            if (option?.text == currentQuestion?.ans) {
+                return option
+            }
+        }
+        return null
     }
 
     private fun resetOptionsStyle() {
+        selectedOption = null
+        answered = false
         optionList.let {
-            for (option in optionList!!) {
-                option.background = getDrawable(R.drawable.normal_option_background)
+            for (option in optionList!!.values) {
+                option?.background = getDrawable(R.drawable.normal_option_background)
             }
         }
     }
 
     private fun submitOnClickHandler() {
-
-        if (currentQuestion < questionList!!.size) {
-            currentQuestion++
+        if (answered && currentQuestionNumber < questionList!!.size) {
+            currentQuestionNumber++
             getQuestions()
-        } else {
+        } else if (answered) {
+            resetOptionsStyle()
             val intent: Intent = Intent(this, ScoreActivity::class.java)
+            intent.putExtra(Constants.USER_NAME_KW, userName)
+            intent.putExtra(Constants.SCORE_KW, score)
+            intent.putExtra(Constants.TOTAL_QUESTIONS_KW, questionList?.size)
             startActivity(intent)
             finish()
+        }
+    }
+
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            R.id.option1, R.id.option2, R.id.option3, R.id.option4 -> {
+                if (answered) return
+                selectedOption = view
+                checkAnswer()
+                answered = true
+            }
+        }
+    }
+
+    private fun checkAnswer() {
+        if((selectedOption as TextView).text == currentQuestion?.ans) {
+            selectedOption?.background = getDrawable(R.drawable.correct_option_background)
+            score++
+            Log.i("","$score")
+        } else {
+            selectedOption?.background = getDrawable(R.drawable.incorrect_option_background)
+            correctOption?.background = getDrawable(R.drawable.correct_option_background)
         }
     }
 
