@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 
 class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -138,10 +139,11 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
         if((selectedOption as TextView).text == currentQuestion?.ans) {
             selectedOption?.background = getDrawable(R.drawable.correct_option_background)
             score++
-            Log.i("","$score")
+            Toast.makeText(this,"Correct Answer!", Toast.LENGTH_SHORT).show()
         } else {
             selectedOption?.background = getDrawable(R.drawable.incorrect_option_background)
             correctOption?.background = getDrawable(R.drawable.correct_option_background)
+            Toast.makeText(this,"Wrong Answer!", Toast.LENGTH_SHORT).show()
         }
     }
 
